@@ -1,12 +1,12 @@
 {
-  "name": "Wankanda-ai-backend",
+  "name": "wakanda-ai-backend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "src/server.js",
+  "main": "src/dev-server.js",
   "scripts": {
-    "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "dev": "node --watch src/dev-server.js",
+    "start": "node src/dev-server.js"
   },
   "dependencies": {
     "axios": "^1.7.7",

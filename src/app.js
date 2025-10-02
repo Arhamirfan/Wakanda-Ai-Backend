@@ -12,6 +12,10 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '2mb' }));
 
+app.get('/', (_req, res) => {
+  res.json({ "message": "Welcome to Wakandu AI. :)" });
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
