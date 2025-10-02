@@ -1,5 +1,6 @@
 import axios from 'axios';
 import FormData from 'form-data';
+import https from 'https';
 
 const INGEST_URL = process.env.N8N_INGEST_WEBHOOK_URL;
 const QUERY_URL = process.env.N8N_QUERY_WEBHOOK_URL;
@@ -15,11 +16,17 @@ export async function proxyIngest(req, res) {
     }
     if (req.body?.tags) form.append('tags', req.body.tags);
 
+    // Allow using self-signed certificates in development when explicitly enabled.
+    // Set ALLOW_SELF_SIGNED=true in your environment to allow insecure TLS for testing.
+    const allowSelfSigned = process.env.ALLOW_SELF_SIGNED === 'true' || process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0';
+    const httpsAgent = allowSelfSigned ? new https.Agent({ rejectUnauthorized: false }) : undefined;
+
     const response = await axios.post(INGEST_URL, form, {
       headers: form.getHeaders(),
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-      timeout: 60000
+      timeout: 60000,
+      ...(httpsAgent ? { httpsAgent } : {})
     });
 
     res.json(normalizeIngestResponse(response.data));
@@ -35,10 +42,13 @@ export async function proxyQuery(req, res) {
     const { question } = req.body || {};
     if (!question || typeof question !== 'string') return res.status(400).json({ error: 'Question is required' });
 
+    const allowSelfSignedQuery = process.env.ALLOW_SELF_SIGNED === 'true' || process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0';
+    const httpsAgentQuery = allowSelfSignedQuery ? new https.Agent({ rejectUnauthorized: false }) : undefined;
+
     const response = await axios.post(
       QUERY_URL,
       { message: question, sessionId: Math.random().toString(36).substring(2, 15)  },
-      { timeout: 60000 }
+      { timeout: 60000, ...(httpsAgentQuery ? { httpsAgent: httpsAgentQuery } : {}) }
     ); 
     res.json(response.data);
   } catch (error) {
