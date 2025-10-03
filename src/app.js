@@ -13,10 +13,10 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/', (_req, res) => {
-  res.json({ "message": "Welcome to Wakandu AI. :)" });
+  res.json({ "message": "Welcome to Wakandu AI v1.01 :)" });
 });
 
-app.get('/api/health', (_req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ ok: true });
 });
 
